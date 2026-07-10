@@ -1,5 +1,6 @@
 (function () {
   const STYLE_ID = 'dark-mode-stan-image-style';
+  const ATTR = 'data-dark-mode-stan-image';
 
   function buildCSS() {
     return `
@@ -14,6 +15,15 @@
     `;
   }
 
+  function injectCanvasPatch() {
+    if (document.getElementById('dark-mode-stan-image-injected')) return;
+    const script = document.createElement('script');
+    script.id = 'dark-mode-stan-image-injected';
+    script.src = chrome.runtime.getURL('injected.js');
+    script.onload = () => script.remove();
+    (document.head || document.documentElement).appendChild(script);
+  }
+
   function applyDarkMode(enabled) {
     let style = document.getElementById(STYLE_ID);
     if (enabled) {
@@ -23,8 +33,10 @@
         style.textContent = buildCSS();
         (document.head || document.documentElement).appendChild(style);
       }
-    } else if (style) {
-      style.remove();
+      document.documentElement.setAttribute(ATTR, 'true');
+    } else {
+      if (style) style.remove();
+      document.documentElement.removeAttribute(ATTR);
     }
   }
 
@@ -34,6 +46,7 @@
     });
   }
 
+  injectCanvasPatch();
   checkAndApply();
 
   chrome.storage.onChanged.addListener((changes, area) => {
