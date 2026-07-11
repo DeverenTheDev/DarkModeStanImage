@@ -3,37 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <style>
+  :root {
+    --bg: #2b2b2f;
+    --text: #f2f2f2;
+    --muted: #9a9a9f;
+    --green: #3ddc73;
+    --red: #e5544d;
+  }
   body {
     font-family: system-ui, -apple-system, sans-serif;
-    width: 220px;
-    padding: 12px;
+    width: 260px;
     margin: 0;
+    padding: 20px;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
   }
   h1 {
-    font-size: 14px;
-    margin: 0 0 10px;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: 0.02em;
   }
-  button {
-    width: 100%;
-    padding: 8px;
-    font-size: 13px;
+  #toggle {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--red);
+    background: transparent;
     cursor: pointer;
-    border: none;
-    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: border-color 0.15s ease;
   }
   #toggle.on {
-    background: #2d2d2d;
-    color: #fff;
+    border-color: var(--green);
   }
-  #toggle.off {
-    background: #eee;
-    color: #222;
+  #toggle svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--red);
+    transition: stroke 0.15s ease;
+  }
+  #toggle.on svg {
+    stroke: var(--green);
+  }
+  .status {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
   }
 </style>
 </head>
 <body>
-  <h1>DarkModeStanImage</h1>
-  <button id="toggle">…</button>
+  <div class="row">
+    <button id="toggle" aria-label="Toggle Sheets Dark Mode">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2v10"></path>
+        <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+      </svg>
+    </button>
+    <h1>Sheets Dark Mode</h1>
+  </div>
+  <div class="status" id="status">…</div>
 </body>
 <script src="popup.js"></script>
 </html>

@@ -1,7 +1,8 @@
 function render(enabled) {
   const btn = document.getElementById('toggle');
-  btn.textContent = enabled ? 'Disable Dark Mode' : 'Enable Dark Mode';
-  btn.className = enabled ? 'on' : 'off';
+  const status = document.getElementById('status');
+  btn.className = enabled ? 'on' : '';
+  status.textContent = enabled ? 'Enabled on Google Sheets' : 'Disabled';
 }
 
 chrome.storage.sync.get(['darkModeEnabled'], (data) => {
@@ -11,8 +12,6 @@ chrome.storage.sync.get(['darkModeEnabled'], (data) => {
 document.getElementById('toggle').addEventListener('click', () => {
   chrome.storage.sync.get(['darkModeEnabled'], (data) => {
     const newValue = !data.darkModeEnabled;
-    chrome.storage.sync.set({ darkModeEnabled: newValue }, () => {
-      render(newValue);
-    });
+    chrome.storage.sync.set({ darkModeEnabled: newValue }, () => render(newValue));
   });
 });
