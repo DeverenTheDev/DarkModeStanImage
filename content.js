@@ -2,47 +2,35 @@
   const STYLE_ID = 'dark-mode-stan-image-style';
   const ATTR = 'data-dark-mode-stan-image';
   const BG_ATTR = 'data-dms-bg-fixed';
-  const FILTER_VALUE = 'invert(1) hue-rotate(180deg)';
+  const COLOR_FILTER = 'invert(1) hue-rotate(180deg)';
+  const DEFAULT_ADJUST = { brightness: 100, contrast: 100 };
 
   let observer = null;
+  let state = { enabled: false, brightness: 100, contrast: 100 };
 
-  function buildCSS() {
+  function buildCSS(brightness, contrast) {
     return `
       html {
-        filter: ${FILTER_VALUE} !important;
+        filter: ${COLOR_FILTER} brightness(${brightness}%) contrast(${contrast}%) !important;
         background: #fff !important;
       }
       img, video, picture, svg image, embed, object,
       [style*="background-image"] {
-        filter: ${FILTER_VALUE} !important;
+        filter: ${COLOR_FILTER} !important;
       }
     `;
   }
 
-  // Catches background images set via external/class-based CSS, which the
-  // [style*="background-image"] selector can't see (it only sees inline
-  // style attributes). We check the resolved computed style instead, and
-  // apply the un-invert directly as an inline style, which wins regardless
-  // of where the original background-image rule came from.
   function fixBackgroundImages(root) {
     if (!(root instanceof Element)) return;
     const candidates = root.querySelectorAll('*');
     for (const el of candidates) {
       if (el.hasAttribute(BG_ATTR)) continue;
-      // Skip anything already inside an element we fixed -- nested filters
-      // compound, so fixing both an ancestor and descendant double-corrects.
       if (el.closest(`[${BG_ATTR}]`)) continue;
-      // Skip containers that hold a real <img> -- the img's own filter
-      // (from the stylesheet rule) already handles it. If we ALSO put a
-      // filter on a wrapper div around it (e.g. a blurred placeholder or
-      // status-ring background sitting behind the photo), that wrapper's
-      // filter compounds with the img's filter and nets out to an odd
-      // number of inversions -- i.e. it stays inverted. This was the
-      // LinkedIn avatar bug.
       if (el.querySelector('img')) continue;
       const bg = getComputedStyle(el).backgroundImage;
       if (bg && bg !== 'none' && bg.includes('url(')) {
-        el.style.setProperty('filter', FILTER_VALUE, 'important');
+        el.style.setProperty('filter', COLOR_FILTER, 'important');
         el.setAttribute(BG_ATTR, 'true');
       }
     }
@@ -55,10 +43,6 @@
     });
   }
 
-  // LinkedIn (and most modern sites) keep injecting new DOM after the
-  // initial page load -- popups, infinite scroll, SPA navigation. A
-  // one-time scan on load would miss all of that, so we watch for new
-  // elements and check each one as it appears.
   function startObserving() {
     if (observer) return;
     observer = new MutationObserver((mutations) => {
@@ -90,15 +74,15 @@
     (document.head || document.documentElement).appendChild(script);
   }
 
-  function applyDarkMode(enabled) {
+  function render() {
     let style = document.getElementById(STYLE_ID);
-    if (enabled) {
+    if (state.enabled) {
       if (!style) {
         style = document.createElement('style');
         style.id = STYLE_ID;
-        style.textContent = buildCSS();
         (document.head || document.documentElement).appendChild(style);
       }
+      style.textContent = buildCSS(state.brightness, state.contrast);
       document.documentElement.setAttribute(ATTR, 'true');
       fixBackgroundImages(document.documentElement);
       startObserving();
@@ -114,23 +98,34 @@
     return location.hostname;
   }
 
-  function computeEffective(data) {
-    const masterEnabled = data.masterEnabled !== false; // default true
-    if (!masterEnabled) return false;
-
-    const globalDefault = !!data.globalDefault; // default false
+  function computeState(data) {
+    const masterEnabled = data.masterEnabled !== false;
+    const globalDefault = !!data.globalDefault;
     const siteOverrides = data.siteOverrides || {};
     const override = siteOverrides[getHost()] || 'global';
 
-    if (override === 'on') return true;
-    if (override === 'off') return false;
-    return globalDefault;
+    let enabled;
+    if (!masterEnabled) enabled = false;
+    else if (override === 'on') enabled = true;
+    else if (override === 'off') enabled = false;
+    else enabled = globalDefault;
+
+    const siteAdjust = (data.siteAdjust || {})[getHost()] || DEFAULT_ADJUST;
+
+    return {
+      enabled,
+      brightness: siteAdjust.brightness,
+      contrast: siteAdjust.contrast
+    };
   }
 
   function checkAndApply() {
     chrome.storage.sync.get(
-      ['masterEnabled', 'globalDefault', 'siteOverrides'],
-      (data) => applyDarkMode(computeEffective(data))
+      ['masterEnabled', 'globalDefault', 'siteOverrides', 'siteAdjust'],
+      (data) => {
+        state = computeState(data);
+        render();
+      }
     );
   }
 
@@ -139,8 +134,24 @@
 
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'sync') return;
-    if (changes.masterEnabled || changes.globalDefault || changes.siteOverrides) {
+    if (
+      changes.masterEnabled ||
+      changes.globalDefault ||
+      changes.siteOverrides ||
+      changes.siteAdjust
+    ) {
       checkAndApply();
+    }
+  });
+
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message && message.type === 'DMS_PREVIEW_ADJUST') {
+      state = {
+        ...state,
+        brightness: message.brightness,
+        contrast: message.contrast
+      };
+      render();
     }
   });
 })();

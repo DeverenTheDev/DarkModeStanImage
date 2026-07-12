@@ -114,7 +114,8 @@
     transition: transform 0.15s ease;
   }
   .panel.collapsed .chevron { transform: rotate(180deg); }
-  .panel.collapsed .options { display: none; }
+  .panel.collapsed .options,
+  .panel.collapsed .adjust { display: none; }
 
   .options {
     margin-top: 12px;
@@ -130,6 +131,35 @@
     cursor: pointer;
   }
   .option input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+  .adjust {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #4a4a4f;
+  }
+  .adjust-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .adjust-row .value {
+    color: var(--muted);
+  }
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+    margin: 0 0 12px;
+  }
+  .reset-link {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0;
+  }
 </style>
 </head>
 <body>
@@ -174,6 +204,22 @@
         <input type="radio" name="siteMode" value="off">
         Dark mode always OFF
       </label>
+    </div>
+
+    <div class="adjust">
+      <div class="adjust-row">
+        <label for="brightness">Brightness</label>
+        <span class="value" id="brightnessValue">100%</span>
+      </div>
+      <input type="range" id="brightness" min="50" max="150" value="100">
+
+      <div class="adjust-row">
+        <label for="contrast">Contrast</label>
+        <span class="value" id="contrastValue">100%</span>
+      </div>
+      <input type="range" id="contrast" min="50" max="150" value="100">
+
+      <button id="resetAdjust" class="reset-link">Reset to default</button>
     </div>
   </div>
 </body>
