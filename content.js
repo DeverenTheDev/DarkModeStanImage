@@ -19,11 +19,27 @@
     `;
   }
 
+  // Catches background images set via external/class-based CSS, which the
+  // [style*="background-image"] selector can't see (it only sees inline
+  // style attributes). We check the resolved computed style instead, and
+  // apply the un-invert directly as an inline style, which wins regardless
+  // of where the original background-image rule came from.
   function fixBackgroundImages(root) {
     if (!(root instanceof Element)) return;
     const candidates = root.querySelectorAll('*');
     for (const el of candidates) {
       if (el.hasAttribute(BG_ATTR)) continue;
+      // Skip anything already inside an element we fixed -- nested filters
+      // compound, so fixing both an ancestor and descendant double-corrects.
+      if (el.closest(`[${BG_ATTR}]`)) continue;
+      // Skip containers that hold a real <img> -- the img's own filter
+      // (from the stylesheet rule) already handles it. If we ALSO put a
+      // filter on a wrapper div around it (e.g. a blurred placeholder or
+      // status-ring background sitting behind the photo), that wrapper's
+      // filter compounds with the img's filter and nets out to an odd
+      // number of inversions -- i.e. it stays inverted. This was the
+      // LinkedIn avatar bug.
+      if (el.querySelector('img')) continue;
       const bg = getComputedStyle(el).backgroundImage;
       if (bg && bg !== 'none' && bg.includes('url(')) {
         el.style.setProperty('filter', FILTER_VALUE, 'important');
@@ -39,6 +55,10 @@
     });
   }
 
+  // LinkedIn (and most modern sites) keep injecting new DOM after the
+  // initial page load -- popups, infinite scroll, SPA navigation. A
+  // one-time scan on load would miss all of that, so we watch for new
+  // elements and check each one as it appears.
   function startObserving() {
     if (observer) return;
     observer = new MutationObserver((mutations) => {
@@ -95,10 +115,10 @@
   }
 
   function computeEffective(data) {
-    const masterEnabled = data.masterEnabled !== false;
+    const masterEnabled = data.masterEnabled !== false; // default true
     if (!masterEnabled) return false;
 
-    const globalDefault = !!data.globalDefault;
+    const globalDefault = !!data.globalDefault; // default false
     const siteOverrides = data.siteOverrides || {};
     const override = siteOverrides[getHost()] || 'global';
 
