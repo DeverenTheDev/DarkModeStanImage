@@ -40,18 +40,37 @@
     }
   }
 
+  function getHost() {
+    return location.hostname;
+  }
+
+  function computeEffective(data) {
+    const masterEnabled = data.masterEnabled !== false; // default true
+    if (!masterEnabled) return false;
+
+    const globalDefault = !!data.globalDefault; // default false
+    const siteOverrides = data.siteOverrides || {};
+    const override = siteOverrides[getHost()] || 'global';
+
+    if (override === 'on') return true;
+    if (override === 'off') return false;
+    return globalDefault;
+  }
+
   function checkAndApply() {
-    chrome.storage.sync.get(['darkModeEnabled'], (data) => {
-      applyDarkMode(!!data.darkModeEnabled);
-    });
+    chrome.storage.sync.get(
+      ['masterEnabled', 'globalDefault', 'siteOverrides'],
+      (data) => applyDarkMode(computeEffective(data))
+    );
   }
 
   injectCanvasPatch();
   checkAndApply();
 
   chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'sync' && changes.darkModeEnabled) {
-      applyDarkMode(!!changes.darkModeEnabled.newValue);
+    if (area !== 'sync') return;
+    if (changes.masterEnabled || changes.globalDefault || changes.siteOverrides) {
+      checkAndApply();
     }
   });
 })();

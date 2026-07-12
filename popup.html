@@ -5,31 +5,33 @@
 <style>
   :root {
     --bg: #2b2b2f;
+    --panel: #3a3a3f;
     --text: #f2f2f2;
     --muted: #9a9a9f;
+    --accent: #5b8def;
     --green: #3ddc73;
     --red: #e5544d;
   }
+  * { box-sizing: border-box; }
   body {
     font-family: system-ui, -apple-system, sans-serif;
-    width: 260px;
+    width: 300px;
     margin: 0;
     padding: 20px;
     background: var(--bg);
     color: var(--text);
   }
-  .row {
+  .header {
     display: flex;
     align-items: center;
-    gap: 14px;
+    justify-content: space-between;
   }
-  h1 {
+  .title {
     font-size: 15px;
     font-weight: 700;
-    margin: 0;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.04em;
   }
-  #toggle {
+  #masterToggle {
     flex-shrink: 0;
     width: 44px;
     height: 44px;
@@ -43,36 +45,137 @@
     padding: 0;
     transition: border-color 0.15s ease;
   }
-  #toggle.on {
-    border-color: var(--green);
-  }
-  #toggle svg {
+  #masterToggle.on { border-color: var(--green); }
+  #masterToggle svg {
     width: 20px;
     height: 20px;
     stroke: var(--red);
     transition: stroke 0.15s ease;
   }
-  #toggle.on svg {
-    stroke: var(--green);
+  #masterToggle.on svg { stroke: var(--green); }
+
+  .global-row {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
   }
-  .status {
-    margin-top: 14px;
-    font-size: 12px;
-    color: var(--muted);
+  .global-label .small { font-size: 11px; color: var(--muted); display: block; }
+  .global-label .big { font-size: 14px; font-weight: 600; }
+
+  .switch {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    flex-shrink: 0;
   }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch .slider {
+    position: absolute;
+    inset: 0;
+    background: #666;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .switch .slider::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    top: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.15s ease;
+  }
+  .switch input:checked + .slider {
+    background: var(--accent);
+  }
+  .switch input:checked + .slider::before {
+    transform: translateX(18px);
+  }
+
+  .panel {
+    margin-top: 16px;
+    background: var(--panel);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  .panel-header .site { color: var(--accent); }
+  .chevron {
+    transition: transform 0.15s ease;
+  }
+  .panel.collapsed .chevron { transform: rotate(180deg); }
+  .panel.collapsed .options { display: none; }
+
+  .options {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .option input { accent-color: var(--accent); width: 16px; height: 16px; }
 </style>
 </head>
 <body>
-  <div class="row">
-    <button id="toggle" aria-label="Toggle Sheets Dark Mode">
+  <div class="header">
+    <div class="title">DARK MODE</div>
+    <button id="masterToggle" aria-label="Toggle extension">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 2v10"></path>
         <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
       </svg>
     </button>
-    <h1>Sheets Dark Mode</h1>
   </div>
-  <div class="status" id="status">…</div>
+
+  <div class="global-row">
+    <div class="global-label">
+      <span class="small">Global setting</span>
+      <span class="big">Turn on for all websites</span>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="globalToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+
+  <div class="panel" id="panel">
+    <div class="panel-header" id="panelHeader">
+      <span>Customize for <span class="site" id="siteName">…</span></span>
+      <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 15l6-6 6 6"></path>
+      </svg>
+    </div>
+    <div class="options">
+      <label class="option">
+        <input type="radio" name="siteMode" value="global">
+        Use Global setting
+      </label>
+      <label class="option">
+        <input type="radio" name="siteMode" value="on">
+        Dark mode always ON
+      </label>
+      <label class="option">
+        <input type="radio" name="siteMode" value="off">
+        Dark mode always OFF
+      </label>
+    </div>
+  </div>
 </body>
 <script src="popup.js"></script>
 </html>

@@ -1,15 +1,15 @@
 {
   "manifest_version": 3,
   "name": "DarkModeStanImage",
-  "version": "1.0.0",
-  "description": "A dark mode extension that does not invert the colors of embedded images.",
-  "permissions": ["storage"],
+  "version": "1.1.0",
+  "description": "A universal dark mode extension that does not invert the colors of embedded images.",
+  "permissions": ["storage", "activeTab"],
   "action": {
     "default_popup": "popup.html"
   },
   "content_scripts": [
     {
-      "matches": ["https://docs.google.com/spreadsheets/*"],
+      "matches": ["<all_urls>"],
       "js": ["content.js"],
       "run_at": "document_start"
     }
@@ -17,7 +17,7 @@
   "web_accessible_resources": [
     {
       "resources": ["injected.js"],
-      "matches": ["https://docs.google.com/*"]
+      "matches": ["<all_urls>"]
     }
   ]
 }
