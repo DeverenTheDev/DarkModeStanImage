@@ -236,8 +236,8 @@ And I really only made it for myself, and my own use in Google Sheets, where I j
 But I think i realized what the problem is for DarkReader. Most Dark Mode Extension you can download use <img><img> tags in the html of the page to recognize images. But when you "Insert>insert image in cell" it no longer counts as an image, and actually becomes part of Google Sheets' canvas draw layer. Which is actually handled by continuous scan lines. So I had to program my js code code to intercept blah blah blah...
 
 Anyway, if you want it, you got go the github i posted ⬆
--<>Code button
- -Download Zip option
+-<>Code   button
+ -Download Zip   option
   -Unzip the files on your computer, it should be a file named "DarkModeStanImage", with js. files in it
    -Put them into any file you want
     -then you got to go to chrome://extensions/
@@ -248,4 +248,4 @@ And then I think there will be a Permissions Warning. That is because I made the
 Dark Reader is a pretty good extension itself. So what I do is use Dark Reader for most websites, and I just use my  DarkModeStanImage for Google Sheets.
 
 
-Also, I know that I am just some random guy on the internet want you click my sketchy link and download my sketchy files, so just go ahead and only do what you can trust. I understand.
+Also, I know that I am just some random guy on the internets who wants you to click my sketchy link and download my sketchy files, so just go ahead and only do what you can trust. I understand.
