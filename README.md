@@ -214,14 +214,38 @@ brightness/contrast.
 
 
 
+----------------------------------------------- Reddit Post ----- 7/13/2026 
+- https://www.reddit.com/r/googlesheets/comments/1s4j83a/darkmode_that_doesnt_just_invert_the_colors/
 
 
 
-Hello everyone. I found this thread 4 months later, and I got the say, the problem still exists. 
-
+Hello Everyone. I found this thread 4 months later, and I got the say, the problem still exists.
 From DarkReader, to Easy Dark Mode, to even this post: https://www.reddit.com/r/chrome/comments/8iwvzn/night_mode_extension_that_does_not_invert_images/
-No Dark Mode extension in my research seems to do the thing we want, and not invert embedded ima
+No Dark Mode extension in my research seems to do the thing we want; not invert embedded images in google sheets cells. You know, the ones where you select "Insert>insert image in cell" instead of "Insert>insert image over cells" That seems to be what is happening in Seanthesheep0711's second post.
+So I did what any bored computer programmer does when even old reddit posts seem to fail:
+I made my own extension
+I call it       DarkModeStanImage         Probably needs a bettter name.
+And Y'all can have it too
 
 
+https://github.com/DeverenTheDev/DarkModeStanImage/tree/main
 
 
+It is just a public git repository for now. Nothing official on the App Store. And I only really tested it for Google Chrome.
+And I really only made it for myself, and my own use in Google Sheets, where I just couldn't stand the inverted colors anymore.
+But I think i realized what the problem is for DarkReader. Most Dark Mode Extension you can download use <img><img> tags in the html of the page to recognize images. But when you "Insert>insert image in cell" it no longer counts as an image, and actually becomes part of Google Sheets' canvas draw layer. Which is actually handled by continuous scan lines. So I had to program my js code code to intercept blah blah blah...
+
+Anyway, if you want it, you got go the github i posted ⬆
+-<>Code button
+ -Download Zip option
+  -Unzip the files on your computer, it should be a file named "DarkModeStanImage", with js. files in it
+   -Put them into any file you want
+    -then you got to go to chrome://extensions/
+     -Turn on Developer Mode in the top corner, or wherever it is
+      -Click the "Load Unpacked" 
+       -Select the  "DarkModeStanImage" file
+And then I think there will be a Permissions Warning. That is because I made the extension to be useable to any website, to is needs global html permission, instead of a single website permission.
+Dark Reader is a pretty good extension itself. So what I do is use Dark Reader for most websites, and I just use my  DarkModeStanImage for Google Sheets.
+
+
+Also, I know that I am just some random guy on the internet want you click my sketchy link and download my sketchy files, so just go ahead and only do what you can trust. I understand.
